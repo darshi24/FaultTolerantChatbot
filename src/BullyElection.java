@@ -32,7 +32,6 @@ public class BullyElection {
   Scanner sc;
 
   /** Instantiates a new bully election. */
-  // take int array of port number
   public BullyElection() {
     sc = new Scanner(System.in);
   }
