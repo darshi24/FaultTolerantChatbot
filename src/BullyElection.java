@@ -1,6 +1,6 @@
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 /** The Proposer server. */
 class ProposerServer {
@@ -25,23 +25,32 @@ public class BullyElection {
   int numberOfProposers = 5;
   /** The Failed proposer port number. */
   int failedProposerNumber;
+
   ProposerServer[] proposers;
   /** The Proposer ports. */
-  // hard coded since the server port is fixed
   int[] proposerPorts = {3200, 3201, 3202, 3203, 3204};
-  Scanner sc;
 
-  /** Instantiates a new bully election. */
-  public BullyElection() {
-    sc = new Scanner(System.in);
+  public BullyElection(List<String> serverPortsList, String failedProposerNumber) {
+    initialiseProposers(serverPortsList);
+    startElection(Integer.parseInt(failedProposerNumber));
+  }
+
+  public void initialiseServerPorts(List<String> serverPortsList) {
+    proposerPorts[0] = Integer.parseInt(serverPortsList.get(0));
+    proposerPorts[1] = Integer.parseInt(serverPortsList.get(1));
+    proposerPorts[2] = Integer.parseInt(serverPortsList.get(2));
+    proposerPorts[3] = Integer.parseInt(serverPortsList.get(3));
+    proposerPorts[4] = Integer.parseInt(serverPortsList.get(4));
   }
 
   /** Initialise proposers. */
-  public void initialiseProposers() {
+  public void initialiseProposers(List<String> serverPortsList) {
     System.out.println("Initialize bully election");
+    initialiseServerPorts(serverPortsList);
     proposers = new ProposerServer[numberOfProposers];
     for (int i = 0; i < proposers.length; i++) {
       proposers[i] = new ProposerServer(i);
+      // System.out.println("Proposer on port " + proposerPorts[i] + " has ID " + proposers[i].id);
     }
   }
 
@@ -75,26 +84,23 @@ public class BullyElection {
   }
 
   /** Start election. */
-  public void startElection() {
+  public void startElection(int failedProposerNumber) {
 
     Random random = new Random();
     try {
-      System.out.println("Enter the failed proposer port number.");
-      failedProposerNumber = sc.nextInt();
       int failedProposerIndex = findIndex(proposerPorts, failedProposerNumber);
       System.out.println("Proposer on port " + proposerPorts[failedProposerIndex] + " failed");
+      proposers[failedProposerIndex].active = false;
 
     } catch (Exception exception) {
       System.out.println("No matched proposer port number, please try again");
       System.exit(1);
     }
 
-    proposers[getMaxIndex()].active = false;
-
     int[] excludedFailedProposer = {failedProposerNumber};
 
     // random select alive proposer to initiate the election
-    int initiatorProposer = getRandomPortWithFailedExcluded(random, 0, 3, excludedFailedProposer);
+    int initiatorProposer = getRandomPortWithFailedExcluded(random, 0, 4, excludedFailedProposer);
 
     System.out.println("Election Initiated by proposer " + proposerPorts[initiatorProposer]);
 
@@ -104,20 +110,21 @@ public class BullyElection {
     do {
       if (proposers[next].active) {
         System.out.println(
-          "Proposer "
-            + proposerPorts[prev]
-            + " pass Election ID: "
-            + proposers[prev].id
-            + " "
-            + "to Proposer "
-            + proposerPorts[next]);
+            "Proposer "
+                + proposerPorts[prev]
+                + " pass Election ID: "
+                + proposers[prev].id
+                + " "
+                + "to Proposer "
+                + proposerPorts[next]);
         prev = next;
       }
 
       next = (next + 1) % numberOfProposers;
     } while (next != initiatorProposer);
 
-    System.out.println("Proposer " + proposerPorts[proposers[getMaxIndex()].id] + " becomes leader");
+    System.out.println(
+        "Proposer " + proposerPorts[proposers[getMaxIndex()].id] + " becomes leader");
     int leader = proposers[getMaxIndex()].id;
 
     prev = leader;
@@ -164,17 +171,4 @@ public class BullyElection {
     }
     return random;
   }
-
-  /**
-   * The entry point of bully election.
-   *
-   * @param arg the input arguments
-   */
-  public static void main(String[] arg) {
-    BullyElection bullyElection = new BullyElection();
-    bullyElection.initialiseProposers();
-    bullyElection.startElection();
-  }
 }
-
-
