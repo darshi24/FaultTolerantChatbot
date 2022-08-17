@@ -25,8 +25,7 @@ public class Client {
                 Long time = System.currentTimeMillis();
 
                 if(isTickerValid(clientTicker)){
-                     FinnHubService f = new FinnHubService();
-                     String price = f.getStockPrice(clientTicker);
+                     String price = FinnHubService.getStockPrice(clientTicker);
                      System.out.println("Current Price : "+price);
                      String response = s.createHistory(time,clientTicker,price);
                     if(response.equalsIgnoreCase("success")) {
