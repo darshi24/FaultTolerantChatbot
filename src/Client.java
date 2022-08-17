@@ -1,3 +1,9 @@
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -8,6 +14,7 @@ public class Client {
 
     public static void main(String[] args) {
         while(true) {
+            Client.multicast();
             System.out.println("Enter the proposer port you want to connect to: ");
             Scanner sc = new Scanner(System.in);
             String proposerPort = sc.nextLine();
@@ -44,6 +51,26 @@ public class Client {
                 System.out.println("Service not hosted.");
             }
 
+        }
+    }
+
+    private static void multicast() {
+        try{
+            InetAddress group = InetAddress.getByName("224.0.0.1");
+            int port = 2048;
+            MulticastSocket mss = new MulticastSocket(port);
+            mss.joinGroup(group);
+            String message = "Online?";
+            byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
+            DatagramPacket dp = new DatagramPacket(buffer, buffer.length,group,port);
+            mss.send(dp);
+            mss.leaveGroup(group);
+            mss.close();
+            System.out.println("Successfully send out multicast message!");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
