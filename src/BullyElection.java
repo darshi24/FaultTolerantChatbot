@@ -20,8 +20,8 @@ class ProposerServer {
   }
 }
 
-/** The Ring election algorithm. */
-public class RingElection {
+/** The Bully election algorithm. */
+public class BullyElection {
   int numberOfProposers = 5;
   /** The Failed proposer port number. */
   int failedProposerNumber;
@@ -31,15 +31,15 @@ public class RingElection {
   int[] proposerPorts = {3200, 3201, 3202, 3203, 3204};
   Scanner sc;
 
-  /** Instantiates a new Ring election. */
+  /** Instantiates a new bully election. */
   // take int array of port number
-  public RingElection() {
+  public BullyElection() {
     sc = new Scanner(System.in);
   }
 
   /** Initialise proposers. */
   public void initialiseProposers() {
-    System.out.println("Initialize ring election");
+    System.out.println("Initialize bully election");
     proposers = new ProposerServer[numberOfProposers];
     for (int i = 0; i < proposers.length; i++) {
       proposers[i] = new ProposerServer(i);
@@ -147,7 +147,7 @@ public class RingElection {
   }
 
   /**
-   * Get a random proposer port to initiate the ring election with failed proposer excluded.
+   * Get a random proposer port to initiate the bully election with failed proposer excluded.
    *
    * @param rnd the random
    * @param start the start index
@@ -167,14 +167,14 @@ public class RingElection {
   }
 
   /**
-   * The entry point of ring election.
+   * The entry point of bully election.
    *
    * @param arg the input arguments
    */
   public static void main(String[] arg) {
-    RingElection ringElection = new RingElection();
-    ringElection.initialiseProposers();
-    ringElection.startElection();
+    BullyElection bullyElection = new BullyElection();
+    bullyElection.initialiseProposers();
+    bullyElection.startElection();
   }
 }
 
