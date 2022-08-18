@@ -27,7 +27,6 @@ public class Client {
         ChatHistoryInterface c = (ChatHistoryInterface) serverRegistry.lookup("HistoryService");
 
         System.out.println("Enter the ticker symbol whose price you want to query ");
-        System.out.println("or enter GET to see the history :");
         String clientTicker = sc.nextLine();
         Long time = System.currentTimeMillis();
 
