@@ -7,6 +7,14 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A class that implements BotServerInterface and provides various services to execute the PAXOS algorithm,
+ * and service for a chat history. Multiple instances of this class can be created which will result
+ * in each replica (instance) to have its record of the chat history with the chat bot. The replica
+ * provides services for the PAXOS algorithm which can then be used to maintain availability and
+ * consistency among the replicas and achieve fault tolerance. Also initiates a leader election algorithm
+ * if the server fails.
+ */
 public class BotServer extends UnicastRemoteObject implements BotServerInterface {
 
   List<String> serverPortsList;
@@ -20,6 +28,17 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
   private String crashPort2;
   private boolean isActive;
 
+  /**
+   * A constructor for the BotServer class. It binds the various services to the Naming registry on the
+   * port specified in the parameters while starting the Server.
+   * @param portsList the list of ports on which the server replicas will be started
+   * @param index an integer denoting the position of this server's port among the list of ports
+   * @param crashTag a string value of "crashP1" or "crashP2" used to configure the acceptor behavior
+   *                 of this server
+   * @param crashPort1 the port number of one of the replicas whose acceptor will crash
+   * @param crashPort2 another port number of one of the replicas whose acceptor will crash
+   * @throws RemoteException the exception that is thrown if the remote call fails
+   */
   public BotServer(
       List<String> portsList, int index, String crashTag, String crashPort1, String crashPort2)
       throws RemoteException {
@@ -44,6 +63,12 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
     }
   }
 
+  /**
+   * The main method. It executes when the server is started.
+   * @param args the command line arguments passed while starting a server program
+   * @throws RemoteException the exception that is thrown if any of the remote calls made by the server
+   * fails.
+   */
   public static void main(String[] args) throws RemoteException {
     if (!(args.length == 6 || args.length == 9)) {
       System.out.println("More or less number of arguments.");
@@ -279,6 +304,12 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
     this.lastAcceptedValues.remove(Long.parseLong(params[0]));
   }
 
+  /**
+   * A helper method that checks whether a value was previously accepted during the ongoing PAXOS run
+   * for the specified key
+   * @param key the timestamp whose PAXOS run is considered
+   * @return a boolean false of true or false. true if a value was previously accepted, otherwise false.
+   */
   private boolean proposalPreviouslyAccepted(long key) {
 
     if (this.lastAcceptedValues.containsKey(key)) {
@@ -288,6 +319,12 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
     }
   }
 
+  /**
+   * A helper method to create delay at various parts in the code. Delays are desired so that the user
+   * can monitor the execution of the PAXOS run, has enough time to introduce message from
+   * another client to test different scenarios of a PAXOS run.
+   * @param seconds the number of seconds by which the execution will be delayed
+   */
   private void createDelay(int seconds) {
     try {
       TimeUnit.SECONDS.sleep(seconds);
@@ -296,6 +333,13 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
     }
   }
 
+  /**
+   * A method that validates the crash tag passed as an argument while starting the server. The crash
+   * tag should either be a string value of 'crashP1' or 'crashP2'. If the crash tag is 'crashP1', the
+   * acceptor at the specified crash ports will crash during PAXOS phase 1. If the crash tag is 'crashP2',
+   * the acceptor at the specified crash ports will crash during PAXOS phase 2.
+   * @param arg the string value of the crash tag
+   */
   private static void checkCrashTagValidity(String arg) {
     if (!(arg.equalsIgnoreCase("crashP1") || arg.equalsIgnoreCase("crashP2"))) {
       System.out.println("Invalid crash tag. Should be either 'crashP1' or 'crashP2'.");
@@ -303,6 +347,13 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
     }
   }
 
+  /**
+   * A helper method that checks whether the port numbers passed in as crash ports are among the
+   * replica port number os not. Crash Port means the acceptor on that port will crash during the
+   * PAXOS run if the simulation is configured for the acceptors to crash.
+   * @param arg crash port 1
+   * @param arg1 crash port 2
+   */
   private static void checkCrashPortsValidity(String arg, String arg1) {
     if (!CommonUtils.isPortValid(arg)) {
       System.out.println("Invalid port number to crash.");

@@ -11,8 +11,15 @@ import java.rmi.registry.Registry;
 import java.util.Date;
 import java.util.Scanner;
 
+/**
+ * A class that represents the client using the servers' chat-bot services.
+ */
 public class Client {
 
+  /**
+   * The main method. It executes when the client is started
+   * @param args the command line arguments, if any, passed while starting a client program
+   */
   public static void main(String[] args) {
     while (true) {
       Client.multicast();
@@ -92,6 +99,13 @@ public class Client {
     }.start();
   }
 
+  /**
+   * A helper method that checks the validity of the ticker symbol entered by the user. It allows three
+   * ticker symbols and if anything else (other ticker symbols, numbers, arbitrary characters) is entered
+   * then an error message is displayed and the user is prompted again to add a valid ticker symbol.
+   * @param clientTicker the ticker symbol
+   * @return a boolean value of true or false. true if the ticker symbol is valid, otherwise false
+   */
   private static boolean isTickerValid(String clientTicker) {
     if (clientTicker.equalsIgnoreCase("MSFT")
         || clientTicker.equalsIgnoreCase("AAPL")
