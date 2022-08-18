@@ -93,7 +93,7 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
       crashTag = args[6];
       crashPort1 = args[7];
       crashPort2 = args[8];
-      // run leader election
+
     }
 
     BotServer server =
@@ -221,7 +221,7 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
       return "fail";
     }
 
-    Long key = Long.parseLong(message.split(" ")[0]); // the timestamp is the key
+    Long key = Long.parseLong(message.split(" ")[0]);
     if (maxProposalIdMap.get(key) != null && proposalId <= maxProposalIdMap.get(key)) {
       createDelay(3);
       return "fail";
@@ -259,7 +259,6 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
 
     Long key = Long.parseLong(message.split(" ")[0]);
     if (maxProposalIdMap.get(key) == null || proposalId.equals(maxProposalIdMap.get(key))) {
-      // timestamp -> proposalId timestamp ticker price
       lastAcceptedValues.put(key, proposalId + " " + message);
 
       return true;
@@ -293,7 +292,7 @@ public class BotServer extends UnicastRemoteObject implements BotServerInterface
     try {
       TimeUnit.SECONDS.sleep(seconds);
     } catch (InterruptedException e) {
-      System.out.println("something");
+      System.out.println("Could not create delay.");
     }
   }
 
