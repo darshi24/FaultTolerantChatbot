@@ -81,19 +81,21 @@ public class Client {
     new Thread("Thread" + new Date().getTime()) {
       @Override
       public void run() {
-        try {
-          InetAddress group = InetAddress.getByName("224.0.0.1");
-          MulticastSocket sock = new MulticastSocket(2048);
-          sock.joinGroup(group);
+        while(true){
+          try {
+            InetAddress group = InetAddress.getByName("224.0.0.1");
+            MulticastSocket sock = new MulticastSocket(2048);
+            sock.joinGroup(group);
 
-          byte[] msg = new byte[256];
-          DatagramPacket packet = new DatagramPacket(msg, msg.length);
+            byte[] msg = new byte[256];
+            DatagramPacket packet = new DatagramPacket(msg, msg.length);
 
-          sock.receive(packet);
-          System.out.println(
-              new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-          e.printStackTrace();
+            sock.receive(packet);
+            System.out.println(
+                new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8));
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
         }
       }
     }.start();
