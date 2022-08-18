@@ -10,8 +10,17 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import netscape.javascript.JSObject;
 
+/**
+ * A class that represents the FinnHubService.
+ */
 public class FinnHubService {
 
+    /**
+     * A method for getting the stock price quote.
+     * @param symbol Stock symbol
+     * @return Price as a string
+     * @throws NoSuchElementException if the stock symbol is not correctly supplied.
+     */
     public static String getStockPrice(String symbol) throws NoSuchElementException {
         if(symbol==null || symbol.length()<1){
             throw new NullPointerException("Stock symbol is not supplied!");

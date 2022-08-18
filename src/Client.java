@@ -60,6 +60,11 @@ public class Client {
     }
   }
 
+  /**
+   * In this method, the client will register in a multicast group and send out a message announcing
+   * it has come online, it will also create a thread as a listener listening to the same group, such
+   * that it will pick up the announcement message from other clients.
+   */
   private static void multicast() {
     try {
       InetAddress group = InetAddress.getByName("224.0.0.1");
@@ -78,27 +83,24 @@ public class Client {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    new Thread("Thread" + new Date().getTime()) {
-      @Override
-      public void run() {
-        while(true){
-          try {
-            InetAddress group = InetAddress.getByName("224.0.0.1");
-            MulticastSocket sock = new MulticastSocket(2048);
-            sock.joinGroup(group);
+    new Thread(() -> {
+      while(true){
+        try {
+          InetAddress group = InetAddress.getByName("224.0.0.1");
+          MulticastSocket sock = new MulticastSocket(2048);
+          sock.joinGroup(group);
 
-            byte[] msg = new byte[256];
-            DatagramPacket packet = new DatagramPacket(msg, msg.length);
+          byte[] msg = new byte[256];
+          DatagramPacket packet = new DatagramPacket(msg, msg.length);
 
-            sock.receive(packet);
-            System.out.println(
-                new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8));
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
+          sock.receive(packet);
+          System.out.println(
+              new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+          e.printStackTrace();
         }
       }
-    }.start();
+    }).start();
   }
 
   /**
