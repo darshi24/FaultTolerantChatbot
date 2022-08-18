@@ -28,7 +28,7 @@ public class BullyElection {
 
   ProposerServer[] proposers;
   /** The Proposer ports. */
-  int[] proposerPorts = {3200, 3201, 3202, 3203, 3204};
+  int[] proposerPorts = new int[5];
 
   public BullyElection(List<String> serverPortsList, String failedProposerNumber) {
     initialiseProposers(serverPortsList);
