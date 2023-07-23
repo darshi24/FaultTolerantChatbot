@@ -25,12 +25,13 @@ We detect failures of a server when the user enters an exit command.  This is kn
 Below are instructions to execute various scenarios in our application.
 ### Scenario 1 – Normal execution
 To set up the system, do the following:
-Open console 1 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 1`
-Open console 2 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 2`
-Open console 3 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 3`
-Open console 4 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 4`
-Open console 5 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 5`
-Open console 6 and type `java -jar Client.jar`
+- Open console 1 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 1`
+- Open console 2 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 2`
+- Open console 3 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 3`
+- Open console 4 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 4`
+- Open console 5 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 5`
+- Open console 6 and type `java -jar Client.jar`
+  
 You will be prompted with a message asking you to enter the port number of the server you want to connect to in the Client console. Let’s say you enter 32002.
 Now, you will be prompted to add a ticker symbol. For the scope of our project, the allowed ticker symbols are AAPL, MSFT, and TSLA. If you enter anything else, you will be prompted with an error message and be asked to enter the ticker symbol again. Let’s say you enter AAPL.
 When you do that, you will be prompted with the current price of the stock immediately and a PAXOS run will start on the servers to maintain consistency of the chat history on each replica. To monitor it you can switch on to console 2 and you will be able to see when phase 1 completes, how many votes were received in phase 1 and phase 2 and finally, you will be able to see the interaction recorded in the chat history on all of the 5 server consoles. (Delays were added at various points so that  the PAXOS algorithm executed slowly and you can monitor its execution and introduce messages from another client at any point during the execution of the the first client’s PAXOS run)
@@ -38,12 +39,13 @@ Simultaneously, you can open another console and start another client and enter 
 Two client requests will join the same PAXOS run only if the timestamp of the client request is the same (Since the chat history needs to be totally ordered, there should only be one chatbot-interaction data at a single timestamp. So, when two proposers will propose chat data at the same time, one of them will have to propose again depending on when it had entered the ongoing PAXOS run - during phase 1, during phase 2 or if it had entered with a lower proposal ID). It is difficult to demo such a case, but you can check our code to see that it can be handled. You can see that we are using a map data structure to keep the PAXOS runs different on the basis of the interaction’s timestamps.
 ### Scenario 2 – Acceptors crashing in Phase 1
 Now let’s try a scenario where the acceptors in a PAXOS algorithm crash during phase 1 of the PAXOS algorithm. To test this out, you will have to shut down each console by pressing Ctrl+C and then start the system in the following way:
-Open console 1 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 1 crashP1 32001 32002`
-Open console 2 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 2 crashP1 32001 32002`
-Open console 3 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 3 crashP1 32001 32002`
-Open console 4 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 4 crashP1 32001 32002`
-Open console 5 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 5 crashP1 32001 32002`
-Open console 6 and type `java -jar Client.jar
+- Open console 1 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 1 crashP1 32001 32002`
+- Open console 2 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 2 crashP1 32001 32002`
+- Open console 3 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 3 crashP1 32001 32002`
+- Open console 4 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 4 crashP1 32001 32002`
+- Open console 5 and type `java -jar BotServer.jar 32001 32003 32003 32004 32005 5 crashP1 32001 32002`
+- Open console 6 and type `java -jar Client.jar`
+  
 The part “crashP1 32001 32002” means that the acceptors at ports 32001 and 32002 will crash during phase 1 of the PAXOS run. You can enter any two distinct port numbers instead of 32001 and 32002 but make sure they are the same across all replicas.
 Follow the same steps as above to interact with the Client. Enter the port number of the proposer/server you want to connect to. Suppose you connect to 32001 this time. Enter the ticker symbol AAPL, you will be displayed the ticker’s current price and then go to the console 1 to see how the PAXOS run plays out. You will notice that the acceptor votes in Phase 1 will only be 3 instead of the usual 5 and on the consoles of servers 32001 and 32002 , you will see the message “Acceptor Failed in Phase 1”. In spite of the acceptors failing, you will see that entry was made in the chat history. This is because the majority of the acceptors were still running.
 ### Scenario 3 – Acceptors crashing in Phase 2
